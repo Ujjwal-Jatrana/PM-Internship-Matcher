@@ -1,0 +1,50 @@
+# PM Internship Smart Match — Automated Pipeline
+# Runs every 6 hours: Scrape → Match → Email Alerts
+# 100% free using GitHub Actions (2,000 min/month free tier)
+
+name: Scrape & Alert Pipeline
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Allow manual triggers from GitHub UI
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r scraper/requirements.txt
+          playwright install chromium
+          playwright install-deps
+
+      - name: Run full pipeline (scrape + match + email)
+        run: python scraper/run_pipeline.py
+        env:
+          SMTP_EMAIL: ${{ secrets.SMTP_EMAIL }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+
+      - name: Export frontend data
+        run: python scraper/scraper.py
+        env:
+          SMTP_EMAIL: ""
+          SMTP_PASSWORD: ""
+
+      - name: Commit updated data
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Bot"
+          git add scraper/scraped_internships.json src/data/scrapedInternships.ts || true
+          git diff --staged --quiet || git commit -m "chore: update scraped internships [$(date -u '+%Y-%m-%d %H:%M')]"
+          git push || echo "Nothing to push"

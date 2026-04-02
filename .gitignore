@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+*.log
+scraper/__pycache__/
+scraper/scraped_internships.json
+.vite/
