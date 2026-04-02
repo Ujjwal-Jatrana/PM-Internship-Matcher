@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { SAMPLE_INTERNSHIPS } from '../data/sampleInternships'
+import { SAMPLE_INTERNSHIPS, Internship } from '../data/sampleInternships'
 import { matchInternships, MatchResult } from '../lib/matcher'
 import { 
   BarChart3, Sparkles, Building2, MapPin, Briefcase, 
@@ -13,11 +13,13 @@ export default function Dashboard() {
   const [scoreFilter, setScoreFilter] = useState<'all' | 'high' | 'medium'>('all')
   const [refreshing, setRefreshing] = useState(false)
   const [lastRefresh, setLastRefresh] = useState(new Date())
+  const [internshipsDb, setInternshipsDb] = useState<Internship[]>(SAMPLE_INTERNSHIPS)
+  const [dataError, setDataError] = useState(false)
 
   const matches = useMemo(() => {
     if (!user) return []
-    return matchInternships(user, SAMPLE_INTERNSHIPS)
-  }, [user])
+    return matchInternships(user, internshipsDb)
+  }, [user, internshipsDb])
 
   const filteredMatches = useMemo(() => {
     if (scoreFilter === 'high') return matches.filter(m => m.score >= 70)
@@ -28,16 +30,32 @@ export default function Dashboard() {
   const totalNew = matches.filter(m => m.isNew).length
   const avgScore = matches.length > 0 ? Math.round(matches.reduce((s, m) => s + m.score, 0) / matches.length) : 0
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setRefreshing(true)
-    setTimeout(() => {
+    setDataError(false)
+    try {
+      // Cloud build: Fetch latest scraped data from GitHub (Option A)
+      const res = await fetch('https://raw.githubusercontent.com/Ujjwal-Jatrana/PM-Internship-Matcher/main/scraper/scraped_internships.json', { cache: 'no-store' })
+      if (!res.ok) throw new Error('Failed to fetch')
+      const data = await res.json()
+      if (data && data.internships && data.internships.length > 0) {
+        setInternshipsDb(data.internships)
+      } else {
+        throw new Error('Empty data')
+      }
+    } catch (e) {
+      console.warn('Could not fetch live data from GitHub, falling back to bundled sample data:', e)
+      setInternshipsDb(SAMPLE_INTERNSHIPS)
+      setDataError(true)
+    } finally {
       setRefreshing(false)
       setLastRefresh(new Date())
-    }, 1500)
+    }
   }
 
-  // Auto-refresh every 30 minutes
+  // Fetch on mount and auto-refresh every 30 minutes
   useEffect(() => {
+    handleRefresh()
     const interval = setInterval(handleRefresh, 30 * 60 * 1000)
     return () => clearInterval(interval)
   }, [])
@@ -61,6 +79,7 @@ export default function Dashboard() {
         </h1>
         <p>
           Smart suggestions based on your profile. Last refreshed: {lastRefresh.toLocaleTimeString()}
+          {dataError && <span style={{ color: 'var(--color-danger)', marginLeft: 8, fontSize: '0.8rem' }}>(Using offline data)</span>}
         </p>
       </div>
 

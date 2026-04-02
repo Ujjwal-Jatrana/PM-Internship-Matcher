@@ -1,18 +1,40 @@
 {
   "name": "pm-internship",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron:dev": "concurrently \"vite\" \"wait-on tcp:5173 && electron .\"",
+    "electron:build": "npm run build && electron-builder",
+    "cap:sync": "npm run build && cap sync",
+    "cap:run": "cap run android"
+  },
+  "build": {
+    "appId": "com.internmatch.app",
+    "productName": "InternMatch",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "win": {
+      "target": ["nsis", "portable"]
+    }
   },
   "devDependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^8.3.0",
+    "concurrently": "^9.2.1",
+    "electron": "^41.1.1",
+    "electron-builder": "^26.8.1",
     "typescript": "~5.9.3",
-    "vite": "^8.0.1"
+    "vite": "^8.0.1",
+    "wait-on": "^9.0.4"
   },
   "dependencies": {
+    "@capacitor/core": "^8.3.0",
     "@supabase/supabase-js": "^2.101.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
