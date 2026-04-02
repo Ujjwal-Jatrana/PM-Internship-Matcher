@@ -1,13 +1,10 @@
 name: Build Desktop and Mobile Apps
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch: # Allow manual trigger
+  workflow_dispatch: # Manual trigger only — don't auto-build on every push
 
 jobs:
-  build-windows:
+  build-windows-exe:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,24 +14,30 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Dependencies
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Node Dependencies
         run: npm install
 
       - name: Build Web App
         run: npm run build
 
-      - name: Build Electron App
-        run: npx electron-builder --win portable
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Python Dependencies
+        run: pip install pywebview pyinstaller
+
+      - name: Build Windows .exe
+        run: python desktop/build.py
 
       - name: Upload Windows Executable
         uses: actions/upload-artifact@v4
         with:
-          name: InternMatch-Windows-Portable
-          path: dist-electron/*.exe
+          name: InternMatch-Windows-Setup
+          path: dist-desktop/InternMatch.exe
 
-  build-android:
+  build-android-apk:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +53,7 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
-      - name: Install Dependencies
+      - name: Install Node Dependencies
         run: npm install
 
       - name: Build Web App

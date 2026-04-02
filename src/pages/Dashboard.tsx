@@ -10,7 +10,7 @@ import {
 
 export default function Dashboard() {
   const { user } = useAuth()
-  const [scoreFilter, setScoreFilter] = useState<'all' | 'high' | 'medium'>('all')
+  const [scoreFilter, setScoreFilter] = useState<'all' | 'high' | 'medium' | 'domain'>('all')
   const [refreshing, setRefreshing] = useState(false)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [internshipsDb, setInternshipsDb] = useState<Internship[]>(SAMPLE_INTERNSHIPS)
@@ -24,6 +24,7 @@ export default function Dashboard() {
   const filteredMatches = useMemo(() => {
     if (scoreFilter === 'high') return matches.filter(m => m.score >= 70)
     if (scoreFilter === 'medium') return matches.filter(m => m.score >= 50)
+    if (scoreFilter === 'domain') return matches.filter(m => m.isDomainMatch)
     return matches
   }, [matches, scoreFilter])
 
@@ -127,6 +128,9 @@ export default function Dashboard() {
           </button>
           <button className={`filter-btn ${scoreFilter === 'medium' ? 'active' : ''}`} onClick={() => setScoreFilter('medium')}>
             ⭐ Medium+ (50%+)
+          </button>
+          <button className={`filter-btn ${scoreFilter === 'domain' ? 'active' : ''}`} onClick={() => setScoreFilter('domain')}>
+            🎯 Domain Match
           </button>
         </div>
         <div className="dashboard-toolbar-right">

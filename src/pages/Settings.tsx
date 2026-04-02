@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
-import { COURSE_PROGRAMS, DOMAINS, INDIAN_STATES, TOP_COMPANIES } from '../data/constants'
+import { COURSE_PROGRAMS, DOMAINS, INDIAN_STATES, TOP_COMPANIES, DESIGNATIONS } from '../data/constants'
 import { Settings as SettingsIcon, Bell, User, MapPin, Save } from 'lucide-react'
 
 export default function Settings() {
@@ -15,10 +15,11 @@ export default function Settings() {
     contactNumber: user?.contactNumber || '',
     address: user?.address || '',
     courseProgram: user?.courseProgram || '',
-    domain: user?.domain || '',
+    domains: user?.domains || [] as string[],
     yearOfProgram: String(user?.yearOfProgram || 1),
     preferredStates: user?.preferredStates || [] as string[],
-    desiredCompany: user?.desiredCompany || 'Any',
+    desiredCompanies: user?.desiredCompanies || [] as string[],
+    desiredDesignation: user?.desiredDesignation || 'Any',
     emailAlertsEnabled: user?.emailAlertsEnabled ?? true,
     minScoreThreshold: 30
   })
@@ -34,16 +35,35 @@ export default function Settings() {
     }))
   }
 
+  const toggleDomain = (domain: string) => {
+    setForm(prev => ({
+      ...prev,
+      domains: prev.domains.includes(domain)
+        ? prev.domains.filter(d => d !== domain)
+        : [...prev.domains, domain]
+    }))
+  }
+
+  const toggleCompany = (company: string) => {
+    setForm(prev => ({
+      ...prev,
+      desiredCompanies: prev.desiredCompanies.includes(company)
+        ? prev.desiredCompanies.filter(c => c !== company)
+        : [...prev.desiredCompanies, company]
+    }))
+  }
+
   const handleSave = () => {
     updateProfile({
       fullName: form.fullName,
       contactNumber: form.contactNumber,
       address: form.address,
       courseProgram: form.courseProgram,
-      domain: form.domain,
+      domains: form.domains,
       yearOfProgram: parseInt(form.yearOfProgram),
       preferredStates: form.preferredStates,
-      desiredCompany: form.desiredCompany,
+      desiredCompanies: form.desiredCompanies.length > 0 ? form.desiredCompanies : [],
+      desiredDesignation: form.desiredDesignation,
       emailAlertsEnabled: form.emailAlertsEnabled
     })
     showToast('Settings saved! Your matches will update.', 'success')
@@ -102,10 +122,22 @@ export default function Settings() {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="set-domain">Domain / Specialization</label>
-            <select id="set-domain" className="form-select" value={form.domain} onChange={e => update('domain', e.target.value)}>
-              {DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
+            <label className="form-label">Domains / Specializations</label>
+            <span className="form-hint" style={{ marginBottom: 8, display: 'block' }}>
+              {form.domains.length > 0 ? `${form.domains.length} domains selected` : 'None selected'}
+            </span>
+            <div className="chip-group">
+              {DOMAINS.map(domain => (
+                <button
+                  key={domain}
+                  type="button"
+                  className={`chip ${form.domains.includes(domain) ? 'selected' : ''}`}
+                  onClick={() => toggleDomain(domain)}
+                >
+                  {domain}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -131,10 +163,29 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="set-company">Desired Company</label>
-            <select id="set-company" className="form-select" value={form.desiredCompany} onChange={e => update('desiredCompany', e.target.value)}>
-              {TOP_COMPANIES.map(c => <option key={c} value={c}>{c}</option>)}
+          <div className="form-group" style={{ marginBottom: 16 }}>
+            <label className="form-label">Desired Companies</label>
+            <span className="form-hint" style={{ marginBottom: 8, display: 'block' }}>
+              {form.desiredCompanies.length > 0 ? `${form.desiredCompanies.length} companies selected` : 'Open to any company'}
+            </span>
+            <div className="chip-group">
+              {TOP_COMPANIES.filter(c => c !== 'Any' && c !== 'Other (specify)').map(company => (
+                <button
+                  key={company}
+                  type="button"
+                  className={`chip ${form.desiredCompanies.includes(company) ? 'selected' : ''}`}
+                  onClick={() => toggleCompany(company)}
+                >
+                  {company}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-group" style={{ marginBottom: 16 }}>
+            <label className="form-label" htmlFor="set-designation">Desired Work Designation</label>
+            <select id="set-designation" className="form-select" value={form.desiredDesignation} onChange={e => update('desiredDesignation', e.target.value)}>
+              {DESIGNATIONS.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
           </div>
         </div>

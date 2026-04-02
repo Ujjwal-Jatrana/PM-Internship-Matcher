@@ -23,7 +23,7 @@ export default function Profile() {
         <div className="profile-avatar">{initials}</div>
         <div className="profile-info">
           <h2>{user.fullName}</h2>
-          <p>{user.courseProgram} — {user.domain} (Year {user.yearOfProgram})</p>
+          <p>{user.courseProgram} — {(user.domains || []).join(', ') || 'No domains'} (Year {user.yearOfProgram})</p>
           <p style={{ fontSize: '0.8rem', marginTop: 4 }}>
             Member since {new Date(user.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
@@ -84,8 +84,8 @@ export default function Profile() {
           <div className="profile-field-value">{user.courseProgram}</div>
         </div>
         <div className="profile-field">
-          <div className="profile-field-label"><GraduationCap size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Domain</div>
-          <div className="profile-field-value">{user.domain}</div>
+          <div className="profile-field-label"><GraduationCap size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Domains</div>
+          <div className="profile-field-value">{(user.domains || []).join(', ') || 'None selected'}</div>
         </div>
         <div className="profile-field">
           <div className="profile-field-label"><GraduationCap size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Year</div>
@@ -100,8 +100,12 @@ export default function Profile() {
           <div className="profile-field-value">{user.preferredStates.length > 0 ? user.preferredStates.join(', ') : 'All India (no preference)'}</div>
         </div>
         <div className="profile-field">
-          <div className="profile-field-label"><Building2 size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Desired Company</div>
-          <div className="profile-field-value">{user.desiredCompany}</div>
+          <div className="profile-field-label"><Building2 size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Desired Companies</div>
+          <div className="profile-field-value">{(user.desiredCompanies || []).length > 0 ? user.desiredCompanies.join(', ') : 'Open to any'}</div>
+        </div>
+        <div className="profile-field">
+          <div className="profile-field-label"><Building2 size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Desired Designation</div>
+          <div className="profile-field-value">{user.desiredDesignation || 'Any'}</div>
         </div>
         <div className="profile-field">
           <div className="profile-field-label"><Mail size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Email Alerts</div>

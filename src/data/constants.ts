@@ -66,3 +66,15 @@ export const TOP_COMPANIES = [
   'MARUTI SUZUKI INDIA LIMITED',
   'Other (specify)'
 ]
+
+export const DESIGNATIONS = [
+  'Software Developer', 'Data Analyst', 'Data Scientist',
+  'Cloud Engineer', 'Cybersecurity Analyst', 'UI/UX Designer',
+  'Mechanical Engineer', 'Electrical Engineer', 'Civil Engineer',
+  'Chemical Engineer', 'CNC Operator', 'AutoCAD Operator',
+  'Business Analyst', 'Marketing Executive', 'HR Executive',
+  'Finance Analyst', 'Operations Manager', 'Supply Chain Analyst',
+  'Project Manager', 'Quality Analyst', 'Research Scientist',
+  'Metallurgy Intern', 'Geologist', 'Automobile Technician',
+  'Any'
+]

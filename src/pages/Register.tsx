@@ -2,7 +2,7 @@ import { useState, FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
-import { INDIAN_STATES, COURSE_PROGRAMS, DOMAINS, TOP_COMPANIES } from '../data/constants'
+import { INDIAN_STATES, COURSE_PROGRAMS, DOMAINS, TOP_COMPANIES, DESIGNATIONS } from '../data/constants'
 import { Check, ArrowRight, ArrowLeft, UserPlus } from 'lucide-react'
 
 const STEPS = ['Personal', 'Contact', 'Academic', 'Preferences', 'Confirm']
@@ -20,8 +20,9 @@ export default function Register() {
     fathersName: '', mothersName: '',
     email: '', password: '', confirmPassword: '',
     contactNumber: '', address: '',
-    courseProgram: '', domain: '', yearOfProgram: '1',
-    preferredStates: [] as string[], desiredCompany: 'Any',
+    courseProgram: '', domains: [] as string[], yearOfProgram: '1',
+    preferredStates: [] as string[], desiredCompanies: [] as string[],
+    desiredDesignation: 'Any',
     customCompany: '', emailAlertsEnabled: true
   })
 
@@ -39,6 +40,24 @@ export default function Register() {
       preferredStates: prev.preferredStates.includes(state)
         ? prev.preferredStates.filter(s => s !== state)
         : [...prev.preferredStates, state]
+    }))
+  }
+
+  const toggleDomain = (domain: string) => {
+    setForm(prev => ({
+      ...prev,
+      domains: prev.domains.includes(domain)
+        ? prev.domains.filter(d => d !== domain)
+        : [...prev.domains, domain]
+    }))
+  }
+
+  const toggleCompany = (company: string) => {
+    setForm(prev => ({
+      ...prev,
+      desiredCompanies: prev.desiredCompanies.includes(company)
+        ? prev.desiredCompanies.filter(c => c !== company)
+        : [...prev.desiredCompanies, company]
     }))
   }
 
@@ -65,8 +84,8 @@ export default function Register() {
         }
         return true
       case 2:
-        if (!form.courseProgram || !form.domain) {
-          showToast('Please select your course and domain', 'error'); return false
+        if (!form.courseProgram || form.domains.length === 0) {
+          showToast('Please select your course and at least one domain', 'error'); return false
         }
         return true
       case 3:
@@ -89,7 +108,7 @@ export default function Register() {
       dateOfBirth: form.dateOfBirth,
       nationality: form.nationality,
       courseProgram: form.courseProgram,
-      domain: form.domain,
+      domains: form.domains,
       yearOfProgram: parseInt(form.yearOfProgram),
       preferredStates: form.preferredStates,
       preferredDistricts: [],
@@ -97,7 +116,8 @@ export default function Register() {
       mothersName: form.mothersName,
       address: form.address,
       contactNumber: form.contactNumber,
-      desiredCompany: form.desiredCompany === 'Other (specify)' ? form.customCompany : form.desiredCompany,
+      desiredCompanies: form.desiredCompanies.length > 0 ? form.desiredCompanies : ['Any'],
+      desiredDesignation: form.desiredDesignation,
       emailAlertsEnabled: form.emailAlertsEnabled
     })
     setLoading(false)
@@ -218,11 +238,22 @@ export default function Register() {
                 </div>
               </div>
               <div className="form-group">
-                <label className="form-label" htmlFor="reg-domain">Domain / Specialization <span className="required">*</span></label>
-                <select id="reg-domain" className="form-select" value={form.domain} onChange={e => update('domain', e.target.value)}>
-                  <option value="">Select your domain</option>
-                  {DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
+                <label className="form-label">Domains / Specializations <span className="required">*</span></label>
+                <span className="form-hint" style={{ marginBottom: 8, display: 'block' }}>
+                  Select all domains you're interested in ({form.domains.length} selected)
+                </span>
+                <div className="chip-group">
+                  {DOMAINS.map(domain => (
+                    <button
+                      key={domain}
+                      type="button"
+                      className={`chip ${form.domains.includes(domain) ? 'selected' : ''}`}
+                      onClick={() => toggleDomain(domain)}
+                    >
+                      {domain}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -250,18 +281,30 @@ export default function Register() {
               </div>
 
               <div className="form-group" style={{ marginBottom: 16 }}>
-                <label className="form-label" htmlFor="reg-company">Desired Company</label>
-                <select id="reg-company" className="form-select" value={form.desiredCompany} onChange={e => update('desiredCompany', e.target.value)}>
-                  {TOP_COMPANIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
+                <label className="form-label">Desired Companies</label>
+                <span className="form-hint" style={{ marginBottom: 8, display: 'block' }}>
+                  Select companies you're interested in (leave empty = open to any). {form.desiredCompanies.length} selected
+                </span>
+                <div className="chip-group">
+                  {TOP_COMPANIES.filter(c => c !== 'Any' && c !== 'Other (specify)').map(company => (
+                    <button
+                      key={company}
+                      type="button"
+                      className={`chip ${form.desiredCompanies.includes(company) ? 'selected' : ''}`}
+                      onClick={() => toggleCompany(company)}
+                    >
+                      {company}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {form.desiredCompany === 'Other (specify)' && (
-                <div className="form-group" style={{ marginBottom: 16 }}>
-                  <label className="form-label" htmlFor="reg-custom-company">Specify Company Name</label>
-                  <input id="reg-custom-company" className="form-input" placeholder="Enter company name" value={form.customCompany} onChange={e => update('customCompany', e.target.value)} />
-                </div>
-              )}
+              <div className="form-group" style={{ marginBottom: 16 }}>
+                <label className="form-label" htmlFor="reg-designation">Desired Work Designation</label>
+                <select id="reg-designation" className="form-select" value={form.desiredDesignation} onChange={e => update('desiredDesignation', e.target.value)}>
+                  {DESIGNATIONS.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
 
               <label className="form-checkbox">
                 <input type="checkbox" checked={form.emailAlertsEnabled} onChange={e => update('emailAlertsEnabled', e.target.checked)} />
@@ -296,16 +339,20 @@ export default function Register() {
                   <div className="profile-field-value">{form.courseProgram} (Year {form.yearOfProgram})</div>
                 </div>
                 <div className="profile-field">
-                  <div className="profile-field-label">Domain</div>
-                  <div className="profile-field-value">{form.domain}</div>
+                  <div className="profile-field-label">Domains</div>
+                  <div className="profile-field-value">{form.domains.join(', ') || 'None selected'}</div>
                 </div>
                 <div className="profile-field">
                   <div className="profile-field-label">Preferred States</div>
                   <div className="profile-field-value">{form.preferredStates.length > 0 ? form.preferredStates.join(', ') : 'All India'}</div>
                 </div>
                 <div className="profile-field">
-                  <div className="profile-field-label">Desired Company</div>
-                  <div className="profile-field-value">{form.desiredCompany === 'Other (specify)' ? form.customCompany : form.desiredCompany}</div>
+                  <div className="profile-field-label">Desired Companies</div>
+                  <div className="profile-field-value">{form.desiredCompanies.length > 0 ? form.desiredCompanies.join(', ') : 'Open to any'}</div>
+                </div>
+                <div className="profile-field">
+                  <div className="profile-field-label">Designation</div>
+                  <div className="profile-field-value">{form.desiredDesignation}</div>
                 </div>
               </div>
             </div>

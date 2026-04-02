@@ -9,7 +9,7 @@ export interface UserProfile {
   dateOfBirth: string
   nationality: string
   courseProgram: string
-  domain: string
+  domains: string[]
   yearOfProgram: number
   preferredStates: string[]
   preferredDistricts: string[]
@@ -17,7 +17,8 @@ export interface UserProfile {
   mothersName: string
   address: string
   contactNumber: string
-  desiredCompany: string
+  desiredCompanies: string[]
+  desiredDesignation: string
   emailAlertsEnabled: boolean
   createdAt: string
 }
@@ -86,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       dateOfBirth: data.dateOfBirth || '',
       nationality: data.nationality || 'Indian',
       courseProgram: data.courseProgram || '',
-      domain: data.domain || '',
+      domains: data.domains || [],
       yearOfProgram: data.yearOfProgram || 1,
       preferredStates: data.preferredStates || [],
       preferredDistricts: data.preferredDistricts || [],
@@ -94,7 +95,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       mothersName: data.mothersName || '',
       address: data.address || '',
       contactNumber: data.contactNumber || '',
-      desiredCompany: data.desiredCompany || 'Any',
+      desiredCompanies: data.desiredCompanies || [],
+      desiredDesignation: data.desiredDesignation || '',
       emailAlertsEnabled: data.emailAlertsEnabled ?? true,
       createdAt: new Date().toISOString()
     }
