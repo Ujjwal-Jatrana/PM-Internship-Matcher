@@ -30,7 +30,7 @@ def build():
     print("Building InternMatch.exe ...")
     print(f"Command: {' '.join(cmd)}")
     subprocess.run(cmd, check=True)
-    print("\n✓ Build complete! Find your .exe at: dist-desktop/InternMatch.exe")
+    print("\nBuild complete! Find your .exe at: dist-desktop/InternMatch.exe")
 
 if __name__ == '__main__':
     build()
