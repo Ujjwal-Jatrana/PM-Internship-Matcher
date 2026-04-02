@@ -1,0 +1,21 @@
+[
+  {
+    "id": "demo-user",
+    "email": "REPLACE_WITH_YOUR_EMAIL@gmail.com",
+    "fullName": "Rahul Sharma",
+    "age": 21,
+    "dateOfBirth": "2004-05-15",
+    "nationality": "Indian",
+    "courseProgram": "B.Tech / B.E.",
+    "domain": "Computer Science / IT",
+    "yearOfProgram": 3,
+    "preferredStates": ["KARNATAKA", "MAHARASHTRA"],
+    "preferredDistricts": [],
+    "fathersName": "Rajesh Sharma",
+    "mothersName": "Sunita Sharma",
+    "address": "Delhi, India",
+    "contactNumber": "+91 9876543210",
+    "desiredCompany": "Any",
+    "emailAlertsEnabled": true
+  }
+]
